@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --danger: #f72585;
+      --success: #4cc9f0;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    .app-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .form-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .form-control {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    input, select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .stat-card h3 {
+      margin-top: 0;
+      color: #666;
+      font-size: 1rem;
+    }
+    .stat-card p {
+      margin-bottom: 0;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .total-income { border-left: 4px solid var(--success); }
+    .total-expense { border-left: 4px solid var(--danger); }
+    .balance { border-left: 4px solid var(--primary); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #f1f3f5;
+      font-weight: 600;
+    }
+    tr:hover {
+      background: #f8f9fa;
+    }
+    .income { color: var(--success); }
+    .expense { color: var(--danger); }
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin: 0 5px;
+    }
+    .chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-header">
+    <h1><i class="fas fa-wallet"></i> Expense Tracker</h1>
+  </div>
+
+  <div class="form-container">
+    <h2>Add New Transaction</h2>
+    <form id="expenseForm">
+      <div class="form-grid">
+        <div class="form-control">
+          <label for="description">Description</label>
+          <input type="text" id="description" required>
+        </div>
+        <div class="form-control">
+          <label for="amount">Amount</label>
+          <input type="number" id="amount" min="0.01" step="0.01" required>
+        </div>
+        <div class="form-control">
+          <label for="category">Category</label>
+          <select id="category" required>
+            <option value="">Select...</option>
+            <option value="food">Food</option>
+            <option value="transport">Transport</option>
+            <option value="housing">Housing</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="shopping">Shopping</option>            
+            <option value="salary">Salary</option>            
+            <option value="fees">Fees</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-control">
+          <label for="date">Date</label>
+          <input type="date" id="date" required>
+        </div>
+        <div class="form-control">
+          <label for="type">Type</label>
+          <select id="type" required>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary">
+        <i class="fas fa-plus"></i> Add Transaction
+      </button>
+    </form>
+  </div>
+
+  <div class="stats-cards">
+    <div class="stat-card total-income">
+      <h3>Total Income</h3>
+      <p id="totalIncome">$0.00</p>
+    </div>
+    <div class="stat-card total-expense">
+      <h3>Total Expenses</h3>
+      <p id="totalExpense">$0.00</p>
+    </div>
+    <div class="stat-card balance">
+      <h3>Balance</h3>
+      <p id="balance">$0.00</p>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <h2>Spending Overview</h2>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <h2>Transaction History</h2>
+  <div class="filters">
+    <select id="filterType">
+      <option value="all">All Types</option>
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+    <select id="filterCategory">
+      <option value="all">All Categories</option>
+      <!-- Dynamically populated -->
+    </select>
+    <input type="month" id="filterMonth">
+    <button id="resetFilters">Reset Filters</button>
+    <button id="exportBtn">Export to CSV</button>
+  </div>
+
+  <div id="transactionsTable">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="transactionsBody">
+        <!-- Dynamically populated -->
+      </tbody>
+    </table>
+    <div id="noData" class="no-data">
+      <i class="fas fa-database fa-3x"></i>
+      <p>No transactions yet. Add your first transaction!</p>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
